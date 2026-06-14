@@ -1,0 +1,22 @@
+services:
+  # --- Base de Datos PostgreSQL ---
+  postgres:
+    image: postgres:17-alpine  # Versión ligera y estable
+    container_name: selfmanagement_application
+    restart: always
+    environment:
+      POSTGRES_USER: ryshen      # Tu usuario
+      POSTGRES_PASSWORD: ryshen1998 # Tu contraseña (cámbiala en producción)
+      POSTGRES_DB: selfmanagement_application_db      # Nombre de la base de datos por defecto
+    ports:
+      - "5432:5432"                 # Mapeo de puerto (Host:Contenedor)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistencia de datos
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ryshen -d selfmanagement_application_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
