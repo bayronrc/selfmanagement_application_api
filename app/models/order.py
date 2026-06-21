@@ -25,7 +25,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(primary_key=True,autoincrement=True)
-    batch_id :Mapped[int] = mapped_column(ForeignKey("orders_batches.id"), nullable=False)
+    batch_id :Mapped[int] = mapped_column(ForeignKey("order_batches.id"), nullable=False)
 
     fecha: Mapped[DateTime] = mapped_column(String(20))
     id_profesional: Mapped[str|None] = mapped_column(String(100))

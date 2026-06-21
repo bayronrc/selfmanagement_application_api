@@ -7,7 +7,7 @@ async def fetch_clerk_user(clerk_id:str):
             f"{settings.BACKEND_API_CLERK_URL}/users/{clerk_id}",
             headers={
                 "Authorization": f"Bearer {settings.CLERK_SECRET_KEY}",
-                "Content-Type":"Application/json"
+                "Content-Type":"application/json"
             }
         )
         response.raise_for_status()

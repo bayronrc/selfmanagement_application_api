@@ -24,9 +24,21 @@ class Settings(BaseSettings):
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
+    @property
+    def DATABASE_URL_SYNC(self) -> str:
+        if not (self.POSTGRES_USER and self.POSTGRES_PASSWORD and self.POSTGRES_DB):
+            raise ValueError(
+                "POSTGRES_USER, POSTGRES_PASSWORD and POSTGRES_DB must be set"
+            )
+
+        return (
+            f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
     class Config:
         env_file = ".env"
         case_sensitive = True
+
 
 
 @lru_cache()

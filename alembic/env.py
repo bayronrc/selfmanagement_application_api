@@ -16,9 +16,6 @@ import app.models
 # Agregar el directorio raíz al path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-# Cargar variables de entorno
-load_dotenv()
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -36,7 +33,7 @@ target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
-database_url = settings.DATABASE_URL
+database_url = settings.DATABASE_URL_SYNC
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 # ... etc.
