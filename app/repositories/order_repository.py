@@ -19,10 +19,12 @@ class OrderRepository:
         for row in rows:
             filtered_row = {k: v for k, v in row.items() if k in valid_columns}
 
-            # Si después de filtrar queda vacío o sin fecha, hay un problema de nombres
-        if "fecha" not in filtered_row or filtered_row["fecha"] is None:
-            order_instance = Order(batch_id=batch_id, **filtered_row)
-            orders.append(order_instance)
+            if filtered_row.get("fecha")is not None:
+                order_instance = Order(
+                    batch_id=batch_id,
+                    **filtered_row
+                )
+                orders.append(order_instance)
 
         self.db.add_all(orders)
         await self.db.flush()

@@ -1,5 +1,4 @@
 from fastapi import HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.order_repository import OrderRepository
 from app.schemas.order import BatchCreate
 

@@ -27,7 +27,7 @@ class Order(Base):
     id: Mapped[int] = mapped_column(primary_key=True,autoincrement=True)
     batch_id :Mapped[int] = mapped_column(ForeignKey("order_batches.id"), nullable=False)
 
-    fecha: Mapped[DateTime] = mapped_column(String(20))
+    fecha: Mapped[DateTime] = mapped_column(DateTime)
     id_profesional: Mapped[str|None] = mapped_column(String(100))
     profesional : Mapped[str|None] = mapped_column(String(255))
     no_orden: Mapped[str|None] = mapped_column(String(100))
