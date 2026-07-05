@@ -21,4 +21,19 @@ class OrderService:
         rows = [row.model_dump() for row in payload.rows]
         orders = await self.repository.create_orders(batch.id, rows)
         await self.repository.commit()
-        return { "batch": batch, "orders": orders}
+        return { "batch": batch ,"orders": orders}
+
+    async def get_orders(self, user_id: int, page: int , limit: int):
+        result = await self.repository.get_orders(user_id, page, limit)
+
+        total = result["total"]
+        orders = result["orders"]
+
+        total_pages = (total + limit - 1 )
+        return {
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": total_pages,
+            "data": orders
+        }

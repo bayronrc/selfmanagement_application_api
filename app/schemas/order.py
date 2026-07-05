@@ -63,5 +63,11 @@ class OrderOut(OrderRow):
     id: int
     batch_id: int
     status: str
-    error_message: Optional[str] = None
     model_config = {"from_attributes":True}
+
+class OrderPaginationResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    pages: int
+    data: List[OrderOut]
