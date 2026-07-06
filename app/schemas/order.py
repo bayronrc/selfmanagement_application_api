@@ -1,15 +1,21 @@
-from datetime import date, datetime
+from datetime import  datetime
+import string
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from click.core import batch
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-from datetime import date, datetime
+from datetime import  datetime
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 
-class OrderRow(BaseModel):
-    # 1. CAMBIO AQUÍ: Cambiamos 'date' por 'datetime'
+from sqlalchemy import orm
+
+
+class OrderBase(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
     fecha: Optional[datetime] = Field(None, alias="Fecha")
     id_profesional: Optional[str] = Field(None, alias="IDProfesional")
     profesional: Optional[str] = Field(None, alias="Profesional")
@@ -25,14 +31,27 @@ class OrderRow(BaseModel):
     @classmethod
     def parse_fecha(cls, v):
         if isinstance(v, str) and v.strip():
-            v_clean = v.replace("a. m.", "AM").replace("p. m.", "PM").replace("a.m.", "AM").replace("p.m.", "PM")
-            try:
-                return datetime.strptime(v_clean, "%d/%m/%Y %I:%M:%S %p")
-            except ValueError:
+            v_clean = v.strip()
+            v_clean = v_clean.replace("a. m.", "a.m.").replace("p. m.", "p.m.")
+            v_clean = v_clean.replace("a.m.", "AM").replace("p.m.", "PM")
+
+            # Lista de formatos a intentar (en orden de prioridad)
+            formatos = [
+                "%d/%m/%Y %I:%M:%S %p",  # 01/06/2026 02:34:00 PM
+                "%d/%m/%Y %H:%M:%S",     # 01/06/2026 14:34:00
+                "%Y-%m-%d %H:%M:%S",     # 2026-06-01 14:34:00
+                "%d/%m/%Y",              # 01/06/2026
+                "%Y-%m-%d",              # 2026-06-01
+            ]
+
+            for formato in formatos:
                 try:
-                    return datetime.strptime(v_clean, "%d/%m/%Y")
+                    return datetime.strptime(v_clean, formato)
                 except ValueError:
-                    return datetime.strptime(v_clean, "%Y-%m-%d")
+                    continue
+
+            # Si ningún formato funciona, lanzar error con información útil
+            raise ValueError(f"No se pudo parsear la fecha: '{v}'. Formatos soportados: {formatos}")
 
         if isinstance(v, datetime):
             return v
@@ -48,26 +67,19 @@ class OrderRow(BaseModel):
                 return None
         return v
 
-    class Config:
-        populate_by_name = True
-
-
-class BatchCreate(BaseModel):
+class OrderBatchCreate(BaseModel):
     filename: str
-    rows: List[OrderRow]
+    rows : List[OrderBase]
 
-    class Config:
-        populate_by_name = True
-
-class OrderOut(OrderRow):
-    id: int
-    batch_id: int
-    status: str
-    model_config = {"from_attributes":True}
+class UploadBatchResponse(BaseModel):
+    file_name : str
+    total_orders: int
+    batch_id : int
 
 class OrderPaginationResponse(BaseModel):
     total: int
     page: int
     limit: int
     pages: int
-    data: List[OrderOut]
+    data: List[OrderBase]
+    model_config = ConfigDict(from_attributes=True)

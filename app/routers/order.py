@@ -1,4 +1,3 @@
-from typing import List
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +5,7 @@ from app.core.database import  get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.repositories.order_repository import OrderRepository
-from app.schemas.order import BatchCreate, OrderOut, OrderPaginationResponse
+from app.schemas.order import OrderBatchCreate, OrderPaginationResponse, UploadBatchResponse
 from app.services.order_service import OrderService
 
 
@@ -18,9 +17,15 @@ def get_order_service(db: AsyncSession = Depends(get_db))->OrderService:
     repository = OrderRepository(db)
     return OrderService(repository)
 
-@router.post("/upload-batches")
+@router.post(
+        "/upload-batches",
+        response_model=UploadBatchResponse,
+        status_code=status.HTTP_201_CREATED,
+        summary="Crear lote de ordenes",
+        description="Crea un lote de ordenes"
+        )
 async def upload_batch(
-    payload: BatchCreate,
+    payload:OrderBatchCreate,
     service: OrderService = Depends(get_order_service),
     user: User = Depends(get_current_user),
 ):
@@ -33,9 +38,10 @@ async def upload_batch(
             description="Retorna todas las ordenes registradas en el sistema",
 )
 async def get_orders(
-    page: int = 1,
-    limit: int = 10,
+    page: int,
+    limit: int,
+    search: str | None = None,
     user: User = Depends(get_current_user),
     service: OrderService = Depends(get_order_service),
 ):
-    return await service.get_orders(user.id, page, limit)
+    return await service.get_orders(user.id, page, limit, search)
